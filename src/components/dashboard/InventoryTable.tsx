@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, ImageOff } from "lucide-react";
 
 interface InventoryRecord {
   id: string;
@@ -28,6 +28,7 @@ interface InventoryRecord {
   exitTimestamp?: Date;
   operator: string;
   quantity: number;
+  imageUrl?: string;
 }
 
 interface InventoryTableProps {
@@ -79,6 +80,7 @@ const InventoryTable = ({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Imagem</TableHead>
               <TableHead>Código</TableHead>
               <TableHead>Nome</TableHead>
               <TableHead>Descrição</TableHead>
@@ -95,6 +97,21 @@ const InventoryTable = ({
           <TableBody>
             {records.map((record) => (
               <TableRow key={record.id}>
+                <TableCell>
+                  {record.imageUrl ? (
+                    <div className="relative w-12 h-12">
+                      <img
+                        src={record.imageUrl}
+                        alt={record.name}
+                        className="w-full h-full object-cover rounded-md"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center">
+                      <ImageOff className="w-6 h-6 text-gray-400" />
+                    </div>
+                  )}
+                </TableCell>
                 <TableCell className="font-medium">{record.code}</TableCell>
                 <TableCell>{record.name}</TableCell>
                 <TableCell>{record.description}</TableCell>
@@ -106,12 +123,15 @@ const InventoryTable = ({
                 <TableCell>{record.quantity}</TableCell>
                 <TableCell>
                   {record.entryTimestamp
-                    ? format(record.entryTimestamp, "dd/MM/yyyy HH:mm")
+                    ? format(
+                        new Date(record.entryTimestamp),
+                        "dd/MM/yyyy HH:mm",
+                      )
                     : "-"}
                 </TableCell>
                 <TableCell>
                   {record.exitTimestamp
-                    ? format(record.exitTimestamp, "dd/MM/yyyy HH:mm")
+                    ? format(new Date(record.exitTimestamp), "dd/MM/yyyy HH:mm")
                     : "-"}
                 </TableCell>
                 <TableCell>{record.operator}</TableCell>

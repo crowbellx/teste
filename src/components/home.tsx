@@ -1,30 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
+import { Routes, Route } from "react-router-dom";
 import LoginForm from "./auth/LoginForm";
 import DashboardLayout from "./dashboard/DashboardLayout";
 import { useAuth } from "@/lib/auth";
 
-const Home = () => {
+export default function Home() {
   const { user, login, logout } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (data: { username: string; password: string }) => {
-    await login(data.username, data.password);
+    setIsLoading(true);
+    try {
+      await login(data.username, data.password);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-100">
-      {!user ? (
-        <div className="flex items-center justify-center min-h-screen">
-          <LoginForm onSubmit={handleLogin} />
-        </div>
-      ) : (
-        <DashboardLayout
-          userName={user.username}
-          userRole={user.role}
-          onLogout={logout}
-        />
-      )}
-    </div>
-  );
-};
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <LoginForm onSubmit={handleLogin} isLoading={isLoading} />
+      </div>
+    );
+  }
 
-export default Home;
+  return (
+    <Routes>
+      <Route
+        path="*"
+        element={
+          <DashboardLayout
+            userName={user.username}
+            userRole={user.role}
+            onLogout={logout}
+          />
+        }
+      />
+    </Routes>
+  );
+}

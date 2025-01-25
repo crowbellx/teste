@@ -13,16 +13,26 @@ interface AuthContextType {
   logout: () => void;
 }
 
-import { authAPI } from "./api";
-
-export const authenticateUser = async (username: string, password: string) => {
-  try {
-    const { user, token } = await authAPI.login(username, password);
-    localStorage.setItem("authToken", token);
-    return user;
-  } catch (error) {
-    throw new Error("Invalid credentials");
+// Mock authentication function - in a real app, this would call your API
+export const authenticateUser = async (
+  username: string,
+  password: string,
+): Promise<User> => {
+  // For demo purposes, we'll use some simple logic
+  if (!username || !password) {
+    throw new Error("Username and password are required");
   }
+
+  // Simple validation for demo purposes
+  if (username === "admin" && password === "admin") {
+    return { username: "admin", role: "admin" };
+  } else if (username === "operator" && password === "operator") {
+    return { username: "operator", role: "operator" };
+  } else if (username === "viewer" && password === "viewer") {
+    return { username: "viewer", role: "viewer" };
+  }
+
+  throw new Error("Invalid username or password");
 };
 
 export const AuthContext = createContext<AuthContextType>({

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Settings, LogOut, Menu } from "lucide-react";
+import { Settings, Menu } from "lucide-react";
 import BarcodeInput from "./BarcodeInput";
 import {
   Dialog,
@@ -10,16 +10,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import AdminDashboard from "./AdminDashboard";
-import PrintRegistration from "./PrintRegistration";
+import PrintRegistration, { PrintData } from "./PrintRegistration";
 import InventoryTable from "./InventoryTable";
 import StatsPanel from "./StatsPanel";
-import { PrintData } from "./PrintRegistration";
 import { useToast } from "@/components/ui/use-toast";
 
 interface DashboardLayoutProps {
-  userName?: string;
   userRole?: "admin" | "operator" | "viewer";
-  onLogout?: () => void;
 }
 
 interface PrintInventory extends PrintData {
@@ -28,14 +25,11 @@ interface PrintInventory extends PrintData {
   entryTimestamp?: Date;
   exitTimestamp?: Date;
   operator: string;
-  quantity: number;
 }
 
-const DashboardLayout = ({
-  userName = "John Doe",
-  userRole = "operator",
-  onLogout = () => {},
-}: DashboardLayoutProps) => {
+export default function DashboardLayout({
+  userRole = "admin",
+}: DashboardLayoutProps) {
   const { toast } = useToast();
   const [showRegistration, setShowRegistration] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
@@ -59,14 +53,13 @@ const DashboardLayout = ({
         id: Date.now().toString(),
         status: data.status || "pending",
         entryTimestamp: new Date(),
-        operator: userName,
-        quantity: 100, // Default quantity for new prints
+        operator: "Sistema",
       },
     ]);
     setShowRegistration(false);
     toast({
       title: "Estampa cadastrada",
-      description: `A estampa ${data.name} foi cadastrada com sucesso!`,
+      description: `A estampa ${data.name} foi cadastrada com ${data.quantity} unidades!`,
     });
   };
 
@@ -207,10 +200,6 @@ const DashboardLayout = ({
               </h1>
             </div>
             <div className="flex items-center gap-4">
-              <div className="text-right mr-4">
-                <p className="text-sm font-medium text-gray-900">{userName}</p>
-                <p className="text-xs text-gray-500 capitalize">{userRole}</p>
-              </div>
               {userRole === "admin" && (
                 <Button
                   variant="ghost"
@@ -220,9 +209,6 @@ const DashboardLayout = ({
                   <Settings className="h-5 w-5" />
                 </Button>
               )}
-              <Button variant="ghost" size="icon" onClick={onLogout}>
-                <LogOut className="h-5 w-5" />
-              </Button>
             </div>
           </div>
         </div>
@@ -286,6 +272,4 @@ const DashboardLayout = ({
       </main>
     </div>
   );
-};
-
-export default DashboardLayout;
+}

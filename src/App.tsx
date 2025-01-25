@@ -1,20 +1,21 @@
 import { Suspense } from "react";
-import { useRoutes, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./components/AuthProvider";
-import Home from "./components/home";
-import routes from "tempo-routes";
+import { Routes, Route } from "react-router-dom";
+import DashboardLayout from "./components/dashboard/DashboardLayout";
+import { Toaster } from "@/components/ui/toaster";
 
-function App() {
+export default function App() {
   return (
-    <Suspense fallback={<p>Loading...</p>}>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Home />} />
-        </Routes>
-        {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
-      </AuthProvider>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          Loading...
+        </div>
+      }
+    >
+      <Routes>
+        <Route path="/*" element={<DashboardLayout userRole="admin" />} />
+      </Routes>
+      <Toaster />
     </Suspense>
   );
 }
-
-export default App;
