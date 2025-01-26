@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ImagePlus, X } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface PrintRegistrationProps {
   onSubmit?: (data: PrintData) => void;
   isLoading?: boolean;
+  existingCodes?: string[];
 }
 
 export interface PrintData {
@@ -23,9 +25,12 @@ export interface PrintData {
 export default function PrintRegistration({
   onSubmit = () => {},
   isLoading = false,
+  existingCodes = [],
 }: PrintRegistrationProps) {
+  const { toast } = useToast();
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [quantity, setQuantity] = useState<string>("1");
+  const [code, setCode] = useState<string>("");
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -42,19 +47,47 @@ export default function PrintRegistration({
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     const parsedQuantity = parseInt(quantity);
+    const submittedCode = formData.get("code") as string;
+
+    if (existingCodes.includes(submittedCode)) {
+      toast({
+        title: "Erro",
+        description: "Já existe uma estampa cadastrada com este código!",
+        variant: "destructive",
+      });
+      return;
+    }
 
     if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
-      return; // Add proper error handling here
+      toast({
+        title: "Erro",
+        description: "A quantidade deve ser maior que zero!",
+        variant: "destructive",
+      });
+      return;
     }
 
     onSubmit({
-      code: formData.get("code") as string,
+      code: submittedCode,
       name: formData.get("name") as string,
       description: formData.get("description") as string,
       status: formData.get("status") as "in_process" | "completed" | "pending",
       imageUrl: previewUrl || undefined,
       quantity: parsedQuantity,
     });
+  };
+
+  const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newCode = e.target.value;
+    setCode(newCode);
+
+    if (existingCodes.includes(newCode)) {
+      toast({
+        title: "Aviso",
+        description: "Este código já está em uso!",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -70,6 +103,8 @@ export default function PrintRegistration({
               <Input
                 id="code"
                 name="code"
+                value={code}
+                onChange={handleCodeChange}
                 placeholder="Código da estampa"
                 required
               />
